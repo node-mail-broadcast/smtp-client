@@ -4,8 +4,8 @@ import * as Mail from 'nodemailer/lib/mailer';
 import { Options } from 'nodemailer/lib/mailer';
 import { SentMessageInfo } from 'nodemailer';
 import { ElementCache, ICache } from './ElementCache';
-import { EmailTemplate } from '../interfaces/jsonInterface';
 import { AxiosResponse } from 'axios';
+import { EmailTemplate } from '../interfaces/IHTTPTemplate';
 
 interface ISMTPConfig {
   host: string;
