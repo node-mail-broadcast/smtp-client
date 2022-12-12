@@ -46,6 +46,10 @@ export class AMQP {
     await this.channel.consume(this.queue, (msg) => this.consumeHandler(msg));
   }
 
+  async disconnect() {
+    await this.connection.close();
+  }
+
   /**
    * This function converts the message buffer to a json object checks for a valid json
    * @param {ConsumeMessage} msg - MSG obj from amqp event
