@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { default as convict_config } from '../config/config';
+import { logger } from '../utils/logger';
 
 function timestamp() {
   return Math.floor(Date.now() / 1000);
@@ -95,8 +96,8 @@ export class ElementCache<T extends ICache> implements IKElementCache<T> {
         //if element is only expired
         const templateVersionDB = await this.getElementVersion<T>(uuid); //todo catch timeout //todo catch
         // todo 404 error
-        console.log(uuid);
-        console.log(templateVersionDB.data);
+        logger.debug(uuid);
+        logger.debug(templateVersionDB.data);
         if (templateVersionDB.data.data.__v !== element.__v) {
           //if version is newer than local version
           return await this.updateTemplateFromDB(uuid);

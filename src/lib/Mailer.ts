@@ -6,6 +6,7 @@ import { SentMessageInfo } from 'nodemailer';
 import { ElementCache, ICache } from './ElementCache';
 import { AxiosResponse } from 'axios';
 import { EmailTemplate } from '../interfaces/IHTTPTemplate';
+import { logger } from '../utils/logger';
 
 interface ISMTPConfig {
   host: string;
@@ -46,11 +47,10 @@ class SMTPElementCache<T extends ICache> extends ElementCache<T> {
 class Mailer {
   private smtpServerCache: SMTPElementCache<x>;
 
-  constructor(jwt: string) {
+  constructor(_jwt: string) {
     this.smtpServerCache = new SMTPElementCache({
       rootURLPath: '/smtpservers/',
       ttl: 0.2 * 60,
-      jwt,
     });
   }
 
@@ -70,14 +70,13 @@ class Mailer {
       this.smtpServerCache
         .fetchServerByTags(smtpServerTags || [])
         .then((data) => {
-          console.log(data.data);
+          logger.silly(data.data);
         });
 
       this.smtpServerCache
         .getElement('00000000-0000-0000-0000-000000000000')
         .then((obj) => {
-          console.log(
-            new Date(),
+          logger.debug(
             'Creating Node Mailer Transport with',
             obj.host,
             obj.username,
@@ -155,10 +154,10 @@ class Mailer {
     return new Promise((resolve, reject) => {
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log(new Date(), `error: ${error}`);
+          logger.error(`error: ${error}`);
           reject(error);
         }
-        console.log(new Date(), `Message Sent ${JSON.stringify(info)}`);
+        logger.debug(`Message Sent ${JSON.stringify(info)}`);
         resolve(info);
       });
     });
