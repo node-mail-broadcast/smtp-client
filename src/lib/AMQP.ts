@@ -6,6 +6,7 @@ import config from '../config/config';
 import { PrepareTemplate } from './prepareTemplate';
 import Mailer from './Mailer';
 import { logger } from '../utils/logger';
+import { amqpPackageSchema } from '../joi/amqpPackage';
 
 /**
  * @author Nico Wagner
@@ -62,11 +63,14 @@ export class AMQP {
     const content = msg.content.toString('utf-8');
     try {
       const json: IJson = JSON.parse(content);
-      if (!json.address || !json.template)
+      const valRes = amqpPackageSchema.tailor('create').validate(json);
+      if (valRes.error) {
+        console.log(valRes);
         throw new Error('Invalid JSON given, missing properties.');
-      return json;
+      }
+      return valRes.value;
     } catch (e) {
-      logger.error('Invalid MSG JSON', e);
+      logger.error('Invalid MSG JSON;', e);
       return false;
     }
   }
@@ -128,8 +132,16 @@ export class AMQP {
         })
         .catch((error) => {
           //this.channel.nack(msg)
+          console.log(error);
           logger.error(error);
+          //todo move to error queue instead of ack
+          this.channel.ack(msg);
         });
+    } else if (json === false) {
+      logger.warn(
+        "Incorrect JSON package format, can't send email but also ack message"
+      );
+      this.channel.ack(msg!);
     }
   }
 }
