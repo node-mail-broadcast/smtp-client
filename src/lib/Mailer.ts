@@ -3,41 +3,10 @@ import * as emailvalidator from 'email-validator';
 import * as Mail from 'nodemailer/lib/mailer';
 import { Options } from 'nodemailer/lib/mailer';
 import { SentMessageInfo } from 'nodemailer';
-import { ElementCache, ICache } from './ElementCache';
-import { AxiosResponse } from 'axios';
 import { EmailTemplate } from '../interfaces/IHTTPTemplate';
 import { logger } from '../utils/logger';
-
-interface ISMTPConfig {
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  secure: boolean;
-}
-export interface x extends ISMTPConfig, ICache {
-  path: string;
-}
-
-class SMTPElementCache<T extends ICache> extends ElementCache<T> {
-  public getElementFromDB<T>(
-    _tags: string
-  ): Promise<AxiosResponse<{ data: T }>> {
-    return this.axios.get<{ data: T }>('/', {
-      params: {
-        tags: ['primary'],
-      },
-    });
-  }
-
-  public fetchServerByTags<T>(tags: string[]) {
-    return this.axios.get<{ data: T }>('/', {
-      params: {
-        tags: ['primary', ...tags],
-      },
-    });
-  }
-}
+import { SmtpServerApi } from '@node-mail-broadcast/node-mailer-ts-api';
+import { API_CONFIG } from './Api';
 
 /**
  * @author Nico Wagner
@@ -45,13 +14,10 @@ class SMTPElementCache<T extends ICache> extends ElementCache<T> {
  * @since 0.1.0 21.07.2021
  */
 class Mailer {
-  private smtpServerCache: SMTPElementCache<x>;
+  private smtpServerApi: SmtpServerApi;
 
   constructor(_jwt: string) {
-    this.smtpServerCache = new SMTPElementCache({
-      rootURLPath: '/smtpservers/',
-      ttl: 0.2 * 60,
-    });
+    this.smtpServerApi = new SmtpServerApi(API_CONFIG);
   }
 
   /**
@@ -64,32 +30,32 @@ class Mailer {
    * @author Nico Wagner
    */
   private createNodeMailerObj(
-    smtpServerTags: string[]
+    _smtpServerTags: string[]
   ): Promise<Mail<SentMessageInfo>> {
     return new Promise((resolve, reject) => {
-      this.smtpServerCache
-        .fetchServerByTags(smtpServerTags || [])
-        .then((data) => {
-          logger.silly(data.data);
-        });
-
-      this.smtpServerCache
-        .getElement('00000000-0000-0000-0000-000000000000')
+      // this.smtpServerCache
+      //   .fetchServerByTags(smtpServerTags || [])
+      //   .then((data) => {
+      //     logger.silly(data.data);
+      //   });
+      this.smtpServerApi
+        .getServerId({ id: 'df576781-3eb2-4d1a-8cbc-7fe83ced21ea' })
         .then((obj) => {
+          const dataObj = obj.data.data;
           logger.debug(
             'Creating Node Mailer Transport with',
-            obj.host,
-            obj.username,
-            obj.port
+            dataObj.host,
+            dataObj.username,
+            dataObj.port
           );
           const transporter = nodemailer.createTransport({
-            from: obj.username,
-            host: obj.host,
-            port: obj.port,
-            secure: obj.secure,
+            from: dataObj.username,
+            host: dataObj.host,
+            port: dataObj.port,
+            secure: dataObj.secure,
             auth: {
-              user: obj.username,
-              pass: obj.password,
+              user: dataObj.username,
+              pass: dataObj.password,
             },
           });
           resolve(transporter);
@@ -110,6 +76,7 @@ class Mailer {
    */
   send(emailTemplate: EmailTemplate, address: string) {
     return new Promise((resolve, reject) => {
+      // @ts-ignore
       this.createNodeMailerObj(emailTemplate.tags).then((transporter) => {
         const mailOptions: Options = {
           from:

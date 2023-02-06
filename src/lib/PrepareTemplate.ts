@@ -1,7 +1,8 @@
-import { ElementCache } from './ElementCache';
 import { EmailTemplate, IHTTPTemplate } from '../interfaces/IHTTPTemplate';
 import { IJson } from '../interfaces/IJson';
 import { logger } from '../utils/logger';
+import { EmailTemplatesApi } from '@node-mail-broadcast/node-mailer-ts-api';
+import { API_CONFIG } from './Api';
 
 export interface ITemplate extends IHTTPTemplate {
   ttl: number;
@@ -13,13 +14,10 @@ export interface ITemplate extends IHTTPTemplate {
  * @since 0.0.2 04.07.2021
  */
 export class PrepareTemplate {
-  private elementCache: ElementCache<ITemplate>;
+  private templateApi: EmailTemplatesApi;
 
   constructor() {
-    this.elementCache = new ElementCache({
-      rootURLPath: '/templates/',
-      ttl: 0.2 * 60,
-    });
+    this.templateApi = new EmailTemplatesApi(API_CONFIG);
   }
 
   /**
@@ -57,17 +55,19 @@ export class PrepareTemplate {
    */
   public getTemplateForSending(data: IJson): Promise<EmailTemplate> {
     return new Promise((resolve, reject) => {
-      this.elementCache
-        .getElement(data.template)
+      this.templateApi
+        .getTemplatesId({ id: data.template })
         .then((template) => {
+          if (template.data.data === null)
+            throw new Error("Template doesn't exist");
           const finishedEmailTemplate = this.replaceEmailFields(
             {
-              text: template.text,
-              html: template.html,
-              subject: template.subject,
-              from: template.from,
+              text: template.data.data.mail.text,
+              html: template.data.data.mail.html,
+              subject: template.data.data.mail.subject,
+              from: template.data.data.mail.from,
             },
-            template.variables,
+            template.data.data.mail.variables,
             data
           );
           resolve(finishedEmailTemplate);
