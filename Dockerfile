@@ -2,6 +2,9 @@ FROM node:16-alpine3.16 AS builder
 
 WORKDIR /build
 
+ARG NODE_AUTH_TOKEN
+ENV NODE_AUTH_TOKEN=${NODE_AUTH_TOKEN}
+
 COPY . .
 RUN npm ci
 RUN npm run build
