@@ -57,4 +57,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args:
-            - NODE_AUTH_TOKEN=${{ secrets.NPM_TOKEN }}
+            NODE_AUTH_TOKEN=${{ secrets.NPM_TOKEN }}
