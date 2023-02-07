@@ -3,7 +3,7 @@ import { IJson } from '../interfaces/IJson';
 import * as amqp from 'amqp-connection-manager';
 import { AmqpConnectionManager } from 'amqp-connection-manager';
 import config from '../config/config';
-import { PrepareTemplate } from './prepareTemplate';
+import { PrepareTemplate } from './PrepareTemplate';
 import Mailer from './Mailer';
 import { logger } from '../utils/logger';
 import { amqpPackageSchema } from '../joi/amqpPackage';
