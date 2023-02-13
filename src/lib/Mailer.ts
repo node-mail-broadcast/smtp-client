@@ -3,9 +3,11 @@ import * as emailvalidator from 'email-validator';
 import * as Mail from 'nodemailer/lib/mailer';
 import { Options } from 'nodemailer/lib/mailer';
 import { SentMessageInfo } from 'nodemailer';
-import { EmailTemplate } from '../interfaces/IHTTPTemplate';
 import { logger } from '../utils/logger';
-import { SmtpServerApi } from '@node-mail-broadcast/node-mailer-ts-api';
+import {
+  SmtpServerApi,
+  Template,
+} from '@node-mail-broadcast/node-mailer-ts-api';
 import { API_CONFIG } from './Api';
 
 /**
@@ -30,23 +32,17 @@ class Mailer {
    * @author Nico Wagner
    */
   private createNodeMailerObj(
-    _smtpServerTags: string[]
+    smtpServerTags: string[]
   ): Promise<Mail<SentMessageInfo>> {
     return new Promise((resolve, reject) => {
-      // this.smtpServerCache
-      //   .fetchServerByTags(smtpServerTags || [])
-      //   .then((data) => {
-      //     logger.silly(data.data);
-      //   });
       this.smtpServerApi
-        .getServerId({ id: 'df576781-3eb2-4d1a-8cbc-7fe83ced21ea' })
+        .getServer({ tags: smtpServerTags })
         .then((obj) => {
-          const dataObj = obj.data.data;
+          const dataObj = obj.data.data[0];
+          if (!dataObj) reject('No SMTP Server found');
+          console.log(dataObj);
           logger.debug(
-            'Creating Node Mailer Transport with',
-            dataObj.host,
-            dataObj.username,
-            dataObj.port
+            `Creating Node Mailer Transport with: ${dataObj.host} ${dataObj.username} ${dataObj.port}`
           );
           const transporter = nodemailer.createTransport({
             from: dataObj.username,
@@ -74,24 +70,25 @@ class Mailer {
    * @version 1.0.0
    * @since 0.1.0 21.07.2021
    */
-  send(emailTemplate: EmailTemplate, address: string) {
+  send(emailTemplate: Template, address: string) {
     return new Promise((resolve, reject) => {
-      // @ts-ignore
-      this.createNodeMailerObj(emailTemplate.tags).then((transporter) => {
-        const mailOptions: Options = {
-          from:
-            emailTemplate.from +
-            ' ' +
-            transporter.transporter.mailer?.options.from,
-          to: address,
-          subject: emailTemplate.subject,
-          text: emailTemplate.text,
-          html: emailTemplate.html,
-        };
-        if (this.checkEmail(address)) {
-          this.nodeMailerSend(mailOptions, transporter).then(resolve, reject);
-        } else reject('Incorrect Email Address');
-      });
+      this.createNodeMailerObj(emailTemplate.mail.smtpServerTags).then(
+        (transporter) => {
+          const mailOptions: Options = {
+            from:
+              emailTemplate.mail.from +
+              ' ' +
+              transporter.transporter.mailer?.options.from,
+            to: address,
+            subject: emailTemplate.mail.subject,
+            text: emailTemplate.mail.text,
+            html: emailTemplate.mail.html,
+          };
+          if (this.checkEmail(address)) {
+            this.nodeMailerSend(mailOptions, transporter).then(resolve, reject);
+          } else reject('Incorrect Email Address');
+        }
+      );
     });
   }
 

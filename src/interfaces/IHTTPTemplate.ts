@@ -1,18 +1,8 @@
-export interface IHTTPTemplate {
-  name: string;
-  enabled: boolean;
-  lastEdited: number;
-  variables: string[];
-  html: string;
-  text: string;
-  from: string;
-  subject: string;
-  language: string;
-  uuid: string;
-  __v: number;
-}
+import { Template } from '@node-mail-broadcast/node-mailer-ts-api';
 
-export type EmailTemplate = Pick<
-  IHTTPTemplate,
-  'html' | 'text' | 'subject' | 'from'
+export type EmailTemplate = Pick<Template, 'mail'>;
+
+export type EmailTemplateFields = Pick<
+  EmailTemplate['mail'],
+  'text' | 'html' | 'subject' | 'from'
 >;

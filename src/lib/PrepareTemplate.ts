@@ -1,12 +1,11 @@
-import { EmailTemplate, IHTTPTemplate } from '../interfaces/IHTTPTemplate';
+import { EmailTemplateFields } from '../interfaces/IHTTPTemplate';
 import { IJson } from '../interfaces/IJson';
 import { logger } from '../utils/logger';
-import { EmailTemplatesApi } from '@node-mail-broadcast/node-mailer-ts-api';
+import {
+  EmailTemplatesApi,
+  Template,
+} from '@node-mail-broadcast/node-mailer-ts-api';
 import { API_CONFIG } from './Api';
-
-export interface ITemplate extends IHTTPTemplate {
-  ttl: number;
-}
 
 /**
  * @author Nico Wagner
@@ -28,10 +27,10 @@ export class PrepareTemplate {
    * @since 0.0.2 04.07.2021
    */
   private replaceEmailFields(
-    { text, html, subject, from }: EmailTemplate,
+    { text, html }: Pick<EmailTemplateFields, 'text' | 'html'>,
     variables: string[],
     data: IJson
-  ): EmailTemplate {
+  ): Pick<EmailTemplateFields, 'text' | 'html'> {
     //console.log(text, html, subject);
     variables.forEach((key) => {
       // eslint-disable-next-line no-prototype-builtins
@@ -42,18 +41,18 @@ export class PrepareTemplate {
         html = html.replace(re, data.data[key]);
       } else logger.warn('for json key ' + key + ' no data is given');
     });
-    return { text, html, subject, from };
+    return { text, html };
   }
 
   /**
    * Fetches the current template and replaces the placeholder, returning the template ready for sending
-   * @param {EmailDataset} data - The Data
+   * @param {IJson} data - The Data
    * @return EmailTemplate - Promise
    * @author Nico Wagner
    * @version 1.0.0
    * @since 0.0.2 04.07.2021
    */
-  public getTemplateForSending(data: IJson): Promise<EmailTemplate> {
+  public getTemplateForSending(data: IJson): Promise<Template> {
     return new Promise((resolve, reject) => {
       this.templateApi
         .getTemplatesId({ id: data.template })
@@ -64,13 +63,13 @@ export class PrepareTemplate {
             {
               text: template.data.data.mail.text,
               html: template.data.data.mail.html,
-              subject: template.data.data.mail.subject,
-              from: template.data.data.mail.from,
             },
             template.data.data.mail.variables,
             data
           );
-          resolve(finishedEmailTemplate);
+          template.data.data.mail.text = finishedEmailTemplate.text;
+          template.data.data.mail.html = finishedEmailTemplate.html;
+          resolve(template.data.data);
         })
         .catch((err) => {
           //console.log(err);
