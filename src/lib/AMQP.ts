@@ -106,6 +106,7 @@ export class AMQP {
    */
   consumeHandler(msg: ConsumeMessage | null) {
     const json = this.parseMessage(msg);
+    logger.silly(`MSG: ${JSON.stringify(msg)}`);
     if (json && msg !== null) {
       logger.debug(JSON.stringify(json));
       logger.debug('SENDING EMAIL');
@@ -132,7 +133,6 @@ export class AMQP {
         })
         .catch((error) => {
           //this.channel.nack(msg)
-          console.log(error);
           logger.error(error);
           //todo move to error queue instead of ack
           this.channel.ack(msg);
