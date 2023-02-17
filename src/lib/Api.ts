@@ -15,5 +15,5 @@ async function getApiVersion() {
 
 getApiVersion().then(
   (x) => logger.info(`Used API Version: ${x.data.version}`),
-  logger.error
+  (x) => logger.error(`Error while fetching API Version: ${x}`)
 );
