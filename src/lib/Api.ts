@@ -9,7 +9,7 @@ export const API_CONFIG = new Configuration({
   basePath: config.get('apiurl'),
 });
 
-async function getApiVersion() {
+export async function getApiVersion() {
   return (await new DefaultApi(API_CONFIG).getVersion()).data;
 }
 

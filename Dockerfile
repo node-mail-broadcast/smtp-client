@@ -18,6 +18,8 @@ WORKDIR /usr/src/app
 
 MAINTAINER Nico W. <info@ni-wa.de>
 
+HEALTHCHECK --start-period=25s CMD npm run healthcheck
+
 COPY --from=builder /build/dist ./dist
 COPY --from=builder /build/node_modules ./node_modules
 COPY --from=builder /build/package*.json .

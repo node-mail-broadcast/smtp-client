@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "node .",
-    "dev": "ts-node-dev --respawn --no-deps --rs --cls ./src/index.ts"
+    "dev": "ts-node-dev --respawn --no-deps --rs --cls ./src/index.ts",
+    "healthcheck": "node ./dist/utils/healthcheck.js"
   },
   "keywords": [
     "email",
