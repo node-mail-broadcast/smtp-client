@@ -1,5 +1,7 @@
+import { EmailAddressesSend } from '@node-mail-broadcast/node-mailer-ts-api/api';
+
 export interface IJson {
-  address: string;
+  address: EmailAddressesSend;
   template: string;
   data: Record<string, string>;
 }

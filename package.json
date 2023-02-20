@@ -34,7 +34,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@node-mail-broadcast/node-mailer-ts-api": "^0.0.1-f5bd795d62ea91a7fd77eb49f6ba373ab719df19",
+    "@node-mail-broadcast/node-mailer-ts-api": "^0.0.1-98dfec65f3a5b46b2af95dbed53f23b01b2aed9e",
     "amqp-connection-manager": "^4.1.10",
     "amqplib": "^0.10.3",
     "axios": "^1.3.2",

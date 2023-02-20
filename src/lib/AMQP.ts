@@ -121,6 +121,7 @@ export class AMQP {
               this.channel.ack(msg);
             })
             .catch((error) => {
+              logger.error(error);
               if (error === 'incorrect email') {
                 logger.debug('Incorrect Email provided, cannot send email');
                 this.channel.ack(msg);

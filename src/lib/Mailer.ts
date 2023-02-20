@@ -9,6 +9,7 @@ import {
   Template,
 } from '@node-mail-broadcast/node-mailer-ts-api';
 import { API_CONFIG } from './Api';
+import { IJson } from '../interfaces/IJson';
 
 /**
  * @author Nico Wagner
@@ -70,7 +71,7 @@ class Mailer {
    * @version 1.0.0
    * @since 0.1.0 21.07.2021
    */
-  send(emailTemplate: Template, address: string) {
+  send(emailTemplate: Template, address: IJson['address']) {
     return new Promise((resolve, reject) => {
       this.createNodeMailerObj(emailTemplate.mail.smtpServerTags).then(
         (transporter) => {
@@ -79,12 +80,15 @@ class Mailer {
               emailTemplate.mail.from +
               ' ' +
               transporter.transporter.mailer?.options.from,
-            to: address,
+            to: address.to,
+            cc: address.cc,
+            bcc: address.bcc,
             subject: emailTemplate.mail.subject,
             text: emailTemplate.mail.text,
             html: emailTemplate.mail.html,
           };
-          if (this.checkEmail(address)) {
+          logger.silly('Start Sending Email');
+          if (this.checkEmail(address.to.address)) {
             this.nodeMailerSend(mailOptions, transporter).then(resolve, reject);
           } else reject('Incorrect Email Address');
         }

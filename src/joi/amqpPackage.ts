@@ -2,7 +2,7 @@ import * as Joi from 'joi';
 import { IJson } from '../interfaces/IJson';
 
 export const amqpPackageSchema = Joi.object<IJson>({
-  address: Joi.string().alter({
+  address: Joi.object().alter({
     create: (schema) => schema.required(),
   }),
   template: Joi.string().alter({
