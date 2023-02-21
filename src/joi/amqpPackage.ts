@@ -1,19 +1,13 @@
 import * as Joi from 'joi';
-import { IJson } from '../interfaces/IJson';
+import { SendEmailByTemplatesIdRequest } from '@node-mail-broadcast/node-mailer-ts-api';
 
-export const amqpPackageSchema = Joi.object<IJson>({
-  address: Joi.object().alter({
+export const amqpPackageSchema = Joi.object<SendEmailByTemplatesIdRequest>({
+  sendTo: Joi.object().alter({
     create: (schema) => schema.required(),
   }),
-  template: Joi.string().alter({
+  templateUUID: Joi.string().alter({
     create: (schema) => schema.required(),
   }),
-  // mail: {
-  //   variables: Joi.array()
-  //     .default([])
-  //     .alter({
-  //       create: (schema) => schema.optional(),
-  //     }),
   data: Joi.object()
     .default({})
     .alter({

@@ -1,5 +1,4 @@
 import { ConfirmChannel, ConsumeMessage } from 'amqplib';
-import { IJson } from '../interfaces/IJson';
 import * as amqp from 'amqp-connection-manager';
 import { AmqpConnectionManager } from 'amqp-connection-manager';
 import config from '../config/config';
@@ -7,6 +6,7 @@ import { PrepareTemplate } from './PrepareTemplate';
 import Mailer from './Mailer';
 import { logger } from '../utils/logger';
 import { amqpPackageSchema } from '../joi/amqpPackage';
+import { SendEmailByTemplatesIdRequest } from '@node-mail-broadcast/node-mailer-ts-api';
 
 /**
  * @author Nico Wagner
@@ -62,7 +62,7 @@ export class AMQP {
     if (msg === null) return null;
     const content = msg.content.toString('utf-8');
     try {
-      const json: IJson = JSON.parse(content);
+      const json: SendEmailByTemplatesIdRequest = JSON.parse(content);
       const valRes = amqpPackageSchema.tailor('create').validate(json);
       if (valRes.error) {
         console.log(valRes);
@@ -115,9 +115,9 @@ export class AMQP {
       z.getTemplateForSending(json)
         .then((result) => {
           this.mailer
-            .send(result, json.address)
+            .send(result, json.sendTo)
             .then((SentMessageInfo) => {
-              logger.debug(SentMessageInfo as string);
+              logger.debug(JSON.stringify(SentMessageInfo));
               this.channel.ack(msg);
             })
             .catch((error) => {

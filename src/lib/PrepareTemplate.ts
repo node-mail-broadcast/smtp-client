@@ -1,8 +1,8 @@
 import { EmailTemplateFields } from '../interfaces/IHTTPTemplate';
-import { IJson } from '../interfaces/IJson';
 import { logger } from '../utils/logger';
 import {
   EmailTemplatesApi,
+  SendEmailByTemplatesIdRequest,
   Template,
 } from '@node-mail-broadcast/node-mailer-ts-api';
 import { API_CONFIG } from './Api';
@@ -29,7 +29,7 @@ export class PrepareTemplate {
   private replaceEmailFields(
     { text, html }: Pick<EmailTemplateFields, 'text' | 'html'>,
     variables: string[],
-    data: IJson
+    data: SendEmailByTemplatesIdRequest
   ): Pick<EmailTemplateFields, 'text' | 'html'> {
     //console.log(text, html, subject);
     variables.forEach((key) => {
@@ -46,16 +46,18 @@ export class PrepareTemplate {
 
   /**
    * Fetches the current template and replaces the placeholder, returning the template ready for sending
-   * @param {IJson} data - The Data
+   * @param {SendEmailByTemplatesIdRequest} data - The Data
    * @return EmailTemplate - Promise
    * @author Nico Wagner
    * @version 1.0.0
    * @since 0.0.2 04.07.2021
    */
-  public getTemplateForSending(data: IJson): Promise<Template> {
+  public getTemplateForSending(
+    data: SendEmailByTemplatesIdRequest
+  ): Promise<Template> {
     return new Promise((resolve, reject) => {
       this.templateApi
-        .getTemplatesId({ id: data.template })
+        .getTemplatesId({ id: data.templateUUID })
         .then((template) => {
           if (template.data.data === null)
             throw new Error("Template doesn't exist");

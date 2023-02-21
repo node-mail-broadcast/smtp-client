@@ -1,15 +1,15 @@
 import * as nodemailer from 'nodemailer';
-import * as emailvalidator from 'email-validator';
+//import * as emailvalidator from 'email-validator';
 import * as Mail from 'nodemailer/lib/mailer';
 import { Options } from 'nodemailer/lib/mailer';
 import { SentMessageInfo } from 'nodemailer';
 import { logger } from '../utils/logger';
 import {
+  EmailAddressesSend,
   SmtpServerApi,
   Template,
 } from '@node-mail-broadcast/node-mailer-ts-api';
 import { API_CONFIG } from './Api';
-import { IJson } from '../interfaces/IJson';
 
 /**
  * @author Nico Wagner
@@ -71,7 +71,7 @@ class Mailer {
    * @version 1.0.0
    * @since 0.1.0 21.07.2021
    */
-  send(emailTemplate: Template, address: IJson['address']) {
+  send(emailTemplate: Template, address: EmailAddressesSend) {
     return new Promise((resolve, reject) => {
       this.createNodeMailerObj(emailTemplate.mail.smtpServerTags).then(
         (transporter) => {
@@ -88,9 +88,9 @@ class Mailer {
             html: emailTemplate.mail.html,
           };
           logger.silly('Start Sending Email');
-          if (this.checkEmail(address.to.address)) {
-            this.nodeMailerSend(mailOptions, transporter).then(resolve, reject);
-          } else reject('Incorrect Email Address');
+          //if (this.checkEmail(address.to.address)) {
+          this.nodeMailerSend(mailOptions, transporter).then(resolve, reject);
+          //} else reject('Incorrect Email Address');
         }
       );
     });
@@ -104,7 +104,7 @@ class Mailer {
    * @version 1.0.0
    * @since 0.1.0 21.07.2021
    */
-  private checkEmail = (address: string) => emailvalidator.validate(address);
+  //private checkEmail = (address: string) => emailvalidator.validate(address);
 
   /**
    * The function uses the given transporter and sends the email
