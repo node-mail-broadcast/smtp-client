@@ -41,7 +41,6 @@ class Mailer {
         .then((obj) => {
           const dataObj = obj.data.data[0];
           if (!dataObj) reject('No SMTP Server found');
-          console.log(dataObj);
           logger.debug(
             `Creating Node Mailer Transport with: ${dataObj.host} ${dataObj.username} ${dataObj.port}`
           );
@@ -76,10 +75,10 @@ class Mailer {
       this.createNodeMailerObj(emailTemplate.mail.smtpServerTags).then(
         (transporter) => {
           const mailOptions: Options = {
-            from:
-              emailTemplate.mail.from +
-              ' ' +
-              transporter.transporter.mailer?.options.from,
+            from: {
+              name: emailTemplate.mail.from.name,
+              address: emailTemplate.mail.from.address,
+            },
             to: address.to,
             cc: address.cc,
             bcc: address.bcc,
