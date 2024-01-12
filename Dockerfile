@@ -1,4 +1,4 @@
-FROM node:16-alpine3.16 AS builder
+FROM node:20-alpine3.19 AS builder
 
 WORKDIR /build
 
@@ -9,10 +9,10 @@ RUN echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
 
 RUN npm ci
 RUN npm run build
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 
-FROM node:16-alpine3.16
+FROM node:20-alpine3.19
 # set working directory
 WORKDIR /usr/src/app
 
